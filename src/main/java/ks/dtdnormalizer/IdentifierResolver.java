@@ -1,3 +1,5 @@
+// -*- mode: java; coding: utf-8-unix -*-
+
 package ks.dtdnormalizer;
 
 import java.io.File;
@@ -21,13 +23,13 @@ public class IdentifierResolver implements XMLEntityResolver {
 		final File cp = new File(catalogPath);
 		CM.setCatalogFiles(cp.toURI().toASCIIString());
 		CM.setIgnoreMissingProperties(true);
-		//CM.setVerbosity(10);
+		CM.setVerbosity(Integer.parseInt(System.getProperty(CommandLine.VERBOSITY, "0")));
 		catalog = CM.getCatalog();
 	}
 
 	@Override
 	public XMLInputSource resolveEntity(XMLResourceIdentifier id)
-			throws XNIException, IOException {
+    throws XNIException, IOException {
 		final String publicId = id.getPublicId();
 		final String systemId = id.getExpandedSystemId();
 		final String base = catalog.getCurrentBase();

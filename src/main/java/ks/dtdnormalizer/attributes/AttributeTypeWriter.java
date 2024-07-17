@@ -1,12 +1,14 @@
+// -*- mode: java; coding: utf-8-unix -*-
+
 package ks.dtdnormalizer.attributes;
 
 public interface AttributeTypeWriter {
 
-    void writeString(String s);
+  void writeString(String s);
 
-    void writeToken(AttributeToken t);
+  void writeToken(AttributeToken t);
 
-    void writeEnumeration(Iterable<String> it);
+  void writeEnumeration(Iterable<String> it);
 
-    void writeNotations(Iterable<String> it);
+  void writeNotations(Iterable<String> it);
 }

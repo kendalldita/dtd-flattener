@@ -1,3 +1,5 @@
+// -*- mode: java; coding: utf-8-unix -*-
+
 package ks.dtdnormalizer;
 
 import org.apache.xerces.parsers.DTDConfiguration;
@@ -7,19 +9,19 @@ import org.apache.xerces.xni.parser.XMLComponentManager;
 
 public class XniConfiguration extends DTDConfiguration {
 
-    public XniConfiguration() { }
+  public XniConfiguration() { }
 
 	public XniConfiguration(SymbolTable symbolTable) {
 		super(symbolTable);
 	}
 
 	public XniConfiguration(SymbolTable symbolTable,
-			XMLGrammarPool grammarPool) {
+                          XMLGrammarPool grammarPool) {
 		super(symbolTable, grammarPool);
 	}
 
 	public XniConfiguration(SymbolTable symbolTable,
-			XMLGrammarPool grammarPool, XMLComponentManager parentSettings) {
+                          XMLGrammarPool grammarPool, XMLComponentManager parentSettings) {
 		super(symbolTable, grammarPool, parentSettings);
 	}
 
@@ -27,7 +29,7 @@ public class XniConfiguration extends DTDConfiguration {
 		setFeature(EXTERNAL_GENERAL_ENTITIES, Boolean.TRUE);
 		setFeature(EXTERNAL_PARAMETER_ENTITIES, Boolean.TRUE);
 		final String dups =
-            System.getProperty("containerguesser.duplicates.warnings");
+      System.getProperty(CommandLine.DUPLICATES, "true");
 		final boolean warn = "true".equals(dups) || "yes".equals(dups);
 		setFeature(WARN_ON_DUPLICATE_ATTDEF, warn);
 		setFeature(WARN_ON_DUPLICATE_ENTITYDEF, warn);

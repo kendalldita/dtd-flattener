@@ -1,3 +1,5 @@
+// -*- mode: java; coding: utf-8-unix -*-
+
 package ks.dtdnormalizer;
 
 import org.apache.xerces.xni.XNIException;
@@ -27,28 +29,28 @@ public class ErrorHandler implements XMLErrorHandler {
 
 	@Override
 	public void error(String domain, String key, XMLParseException e)
-			throws XNIException {
-        logError("error", key, e);
+    throws XNIException {
+    logError("error", key, e);
 	}
 
 	@Override
 	public void fatalError(String domain, String key, XMLParseException e)
-			throws XNIException {
-        logError("fatalError", key, e);
-        throw e;
+    throws XNIException {
+    logError("fatalError", key, e);
+    throw e;
 	}
 
 	@Override
 	public void warning(String domain, String key, XMLParseException e)
-			throws XNIException {
-        logError("warning", key, e);
+    throws XNIException {
+    logError("warning", key, e);
 	}
 
-    protected void logError(final String type, final String key,
-    		                final XNIException e)
-        throws XNIException {
+  protected void logError(final String type, final String key,
+                          final XNIException e)
+    throws XNIException {
 		final Serialization l = getLogger();
 		l.text(type);
 		l.text(" " + key);
-    }
+  }
 }
