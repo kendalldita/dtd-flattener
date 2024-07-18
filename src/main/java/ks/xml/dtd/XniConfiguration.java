@@ -1,6 +1,6 @@
 // -*- mode: java; coding: utf-8-unix -*-
 
-package ks.dtdnormalizer;
+package ks.xml.dtd;
 
 import org.apache.xerces.parsers.DTDConfiguration;
 import org.apache.xerces.util.SymbolTable;
@@ -28,10 +28,5 @@ public class XniConfiguration extends DTDConfiguration {
 	public void initialize() throws Exception {
 		setFeature(EXTERNAL_GENERAL_ENTITIES, Boolean.TRUE);
 		setFeature(EXTERNAL_PARAMETER_ENTITIES, Boolean.TRUE);
-		final String dups =
-      System.getProperty(CommandLine.DUPLICATES, "true");
-		final boolean warn = "true".equals(dups) || "yes".equals(dups);
-		setFeature(WARN_ON_DUPLICATE_ATTDEF, warn);
-		setFeature(WARN_ON_DUPLICATE_ENTITYDEF, warn);
 	}
 }

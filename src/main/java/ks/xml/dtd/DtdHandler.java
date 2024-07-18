@@ -1,15 +1,7 @@
 // -*- mode: java; coding: utf-8-unix -*-
 
-package ks.dtdnormalizer;
+package ks.xml.dtd;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.charset.Charset;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Stack;

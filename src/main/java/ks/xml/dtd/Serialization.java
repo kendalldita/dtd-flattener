@@ -1,9 +1,10 @@
 // -*- mode: java; coding: utf-8-unix -*-
 
-package ks.dtdnormalizer;
+package ks.xml.dtd;
 
 import java.io.Writer;
 import java.net.URI;
+import java.nio.file.Path;
 
 import org.apache.xerces.xni.XMLLocator;
 import org.apache.xerces.xni.XMLString;
@@ -15,11 +16,19 @@ public interface Serialization {
 
   void setLocator(XMLLocator loc);
 
-  void resetTargetResource(URI uri) throws Exception;
+  boolean isWithAbsolutePaths();
+
+  void setWithAbsolutePaths(boolean f);
+
+  Path getBasePath();
+
+  void setBasePath(Path path);
 
   Writer getSerializationWriter();
 
   void setSerializationWriter(Writer w);
+
+  void resetTargetResource(URI uri) throws Exception;
 
   void startDocument(String root) throws XNIException;
 

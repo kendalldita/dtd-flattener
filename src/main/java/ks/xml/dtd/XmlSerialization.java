@@ -1,6 +1,6 @@
 // -*- mode: java; coding: utf-8-unix -*-
 
-package ks.dtdnormalizer;
+package ks.xml.dtd;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -25,11 +25,11 @@ import org.apache.xerces.xni.XMLLocator;
 import org.apache.xerces.xni.XMLString;
 import org.apache.xerces.xni.XNIException;
 
-import ks.dtdnormalizer.attributes.AttributeDeclaration;
-import ks.dtdnormalizer.attributes.AttributeDeclarationWriter;
-import ks.dtdnormalizer.attributes.AttributeEnumeration;
-import ks.dtdnormalizer.attributes.DefaultDeclaration;
-import ks.dtdnormalizer.attributes.DefaultType;
+import ks.xml.dtd.attributes.AttributeDeclaration;
+import ks.xml.dtd.attributes.AttributeDeclarationWriter;
+import ks.xml.dtd.attributes.AttributeEnumeration;
+import ks.xml.dtd.attributes.DefaultDeclaration;
+import ks.xml.dtd.attributes.DefaultType;
 
 public class XmlSerialization
   extends SerializationMixin
@@ -44,6 +44,8 @@ public class XmlSerialization
   private boolean beforeOpen = true;
 
   private Path basePath = Paths.get("");
+
+  private boolean withAbsolutePaths = false;
 
   public XmlSerialization() throws Exception {
     final XMLOutputFactory of = XMLOutputFactory.newInstance();
@@ -77,21 +79,7 @@ public class XmlSerialization
     setXmlWriter(w);    
   }
 
-  public Writer getSerializationWriter() {
-    return serializationWriter;
-  }
-
-  public void setSerializationWriter(final Writer w) {
-    serializationWriter = w;
-  }
-
-  public XMLStreamWriter getXmlWriter() {
-    return xmlWriter;
-  }
-
-  public void setXmlWriter(final XMLStreamWriter xmlWriter) {
-    this.xmlWriter = xmlWriter;
-  }
+  // Serialization interface
 
   @Override
   public XMLLocator getLocator() {
@@ -103,12 +91,43 @@ public class XmlSerialization
     locator = loc;
   }
 
+  @Override
+  public boolean isWithAbsolutePaths() {
+    return withAbsolutePaths;
+  }
+
+  @Override
+  public void setWithAbsolutePaths(boolean withAbsolutePaths) {
+    this.withAbsolutePaths = withAbsolutePaths;
+  }
+
+  @Override
   public Path getBasePath() {
     return basePath;
   }
 
+  @Override
   public void setBasePath(Path basePath) {
     this.basePath = basePath;
+  }
+
+  @Override
+  public Writer getSerializationWriter() {
+    return serializationWriter;
+  }
+
+  @Override
+  public void setSerializationWriter(final Writer w) {
+    serializationWriter = w;
+  }
+
+  // Local property
+  public XMLStreamWriter getXmlWriter() {
+    return xmlWriter;
+  }
+
+  public void setXmlWriter(final XMLStreamWriter xmlWriter) {
+    this.xmlWriter = xmlWriter;
   }
 
   @Override
@@ -440,8 +459,8 @@ public class XmlSerialization
     throws XNIException
   {
     try {
-      final String stripped = text.replaceAll("[ \t\n][ \t\n]+", " ");
       final XMLStreamWriter w = getXmlWriter();
+      final String stripped = text.replaceAll("[ \t\n][ \t\n]+", " ");
       w.writeCharacters(stripped);
     } catch (XMLStreamException e) {
       throw new XNIException(e);
@@ -541,9 +560,15 @@ public class XmlSerialization
         startElement("location");
       }
       try {
-        Path base = new File(new URI(loc.getBaseSystemId())).getAbsoluteFile().toPath();
-        String v = basePath.relativize(base).toString();
-        attribute("href", v);
+        String path = null;
+        File href = new File(new URI(loc.getBaseSystemId())).getAbsoluteFile();
+        if (isWithAbsolutePaths()) {
+          path = href.toURI().toASCIIString();
+        } else {
+          Path base = href.toPath();
+          path = basePath.relativize(base).toString();
+        }
+        attribute("href", path.replace('\\', '/'));
       } catch (URISyntaxException e) {
         throw new RuntimeException(e);
       }

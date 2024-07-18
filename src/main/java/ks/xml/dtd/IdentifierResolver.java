@@ -1,6 +1,6 @@
 // -*- mode: java; coding: utf-8-unix -*-
 
-package ks.dtdnormalizer;
+package ks.xml.dtd;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,7 +23,7 @@ public class IdentifierResolver implements XMLEntityResolver {
 		final File cp = new File(catalogPath);
 		CM.setCatalogFiles(cp.toURI().toASCIIString());
 		CM.setIgnoreMissingProperties(true);
-		CM.setVerbosity(Integer.parseInt(System.getProperty(CommandLine.VERBOSITY, "0")));
+		CM.setVerbosity(Integer.parseInt(System.getProperty(DtdFlattener.VERBOSITY, "0")));
 		catalog = CM.getCatalog();
 	}
 

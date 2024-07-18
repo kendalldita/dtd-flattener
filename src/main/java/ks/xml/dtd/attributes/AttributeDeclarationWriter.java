@@ -1,6 +1,6 @@
 // -*- mode: java; coding: utf-8-unix -*-
 
-package ks.dtdnormalizer.attributes;
+package ks.xml.dtd.attributes;
 
 import org.apache.xerces.xni.XNIException;
 

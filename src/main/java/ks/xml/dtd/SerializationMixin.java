@@ -1,6 +1,6 @@
 // -*- mode: java; coding: utf-8-unix -*-
 
-package ks.dtdnormalizer;
+package ks.xml.dtd;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;

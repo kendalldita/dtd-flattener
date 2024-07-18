@@ -1,6 +1,6 @@
 // -*- mode: java; coding: utf-8-unix -*-
 
-package ks.dtdnormalizer;
+package ks.xml.dtd;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -10,15 +10,17 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Stack;
 import java.util.regex.Matcher;
 
+import ks.xml.dtd.attributes.AttributeDeclaration;
+import ks.xml.dtd.attributes.AttributeDeclarationWriter;
 import org.apache.xerces.xni.XMLLocator;
 import org.apache.xerces.xni.XMLString;
 import org.apache.xerces.xni.XNIException;
-
-import ks.dtdnormalizer.attributes.AttributeDeclaration;
-import ks.dtdnormalizer.attributes.AttributeDeclarationWriter;
 
 public class DtdSerialization extends SerializationMixin
   implements AttributeDeclarationWriter, Serialization
@@ -27,6 +29,10 @@ public class DtdSerialization extends SerializationMixin
   private Writer writer;
 
   private XMLLocator locator;
+
+  private boolean withAbsolutePaths = false;
+
+  private Path basePath = Paths.get("");
 
   private boolean withComments = true;
 
@@ -37,7 +43,11 @@ public class DtdSerialization extends SerializationMixin
     setSerializationWriter(w);
 	}
 
-	public DtdSerialization(File f) throws Exception {
+  public DtdSerialization(File f) throws Exception {
+    this(f, false);
+  }
+
+	public DtdSerialization(File f, boolean withComments) throws Exception {
     FileOutputStream fos = null;
     OutputStreamWriter osw = null;
     BufferedWriter bw = null;
@@ -53,15 +63,7 @@ public class DtdSerialization extends SerializationMixin
     }
 	}
 
-	@Override
-	public Writer getSerializationWriter() {
-		return writer;
-	}
-
-	@Override
-	public void setSerializationWriter(Writer w) {
-    writer = w;
-	}
+  // Serialization interface
 
 	@Override
 	public XMLLocator getLocator() {
@@ -73,6 +75,37 @@ public class DtdSerialization extends SerializationMixin
     locator = loc;
 	}
 
+	@Override
+  public boolean isWithAbsolutePaths() {
+    return withAbsolutePaths;
+  }
+
+	@Override
+  public void setWithAbsolutePaths(boolean withAbsolutePaths) {
+    this.withAbsolutePaths = withAbsolutePaths;
+  }
+
+	@Override
+  public Path getBasePath() {
+    return basePath;
+  }
+
+	@Override
+  public void setBasePath(Path basePath) {
+    this.basePath = basePath;
+  }
+
+	@Override
+	public Writer getSerializationWriter() {
+		return writer;
+	}
+
+	@Override
+	public void setSerializationWriter(Writer w) {
+    writer = w;
+	}
+
+  // Local methods
   public boolean isWithComments() {
 		return withComments;
 	}
@@ -81,7 +114,7 @@ public class DtdSerialization extends SerializationMixin
 		withComments = c;
 	}
 
-	@Override
+  @Override
 	public void resetTargetResource(URI uri) throws Exception {
 	}
 
@@ -401,11 +434,20 @@ public class DtdSerialization extends SerializationMixin
       if (systemId != null)
         externalIdentifier(publicId, systemId);
       if (baseId != null)  {
-        out("<!-- %s", baseId);
-        if(lineNumber < 0)
-          out(" -->\n");
-        else
-          out(" [" + lineNumber + "] -->\n");
+        try {
+          String path = new File(new URI(baseId)).getAbsolutePath();
+          if (!isWithAbsolutePaths()) {
+            Path base = Paths.get(path);
+            path = getBasePath().relativize(base).toString();
+          }
+          out("<!-- %s", path.replace('\\', '/'));
+          if(lineNumber < 0)
+            out(" -->\n");
+          else
+            out(" [" + lineNumber + "] -->\n");
+        } catch (URISyntaxException e) {
+          throw new RuntimeException(e);
+        }
       }
     }
   }
@@ -430,5 +472,4 @@ public class DtdSerialization extends SerializationMixin
 		}
     flush();
   }
-
 }
