@@ -48,6 +48,7 @@ public class DtdSerialization extends SerializationMixin
   }
 
 	public DtdSerialization(File f, boolean withComments) throws Exception {
+    setWithComments(withComments);
     FileOutputStream fos = null;
     OutputStreamWriter osw = null;
     BufferedWriter bw = null;
@@ -111,7 +112,7 @@ public class DtdSerialization extends SerializationMixin
 	}
 
 	public void setWithComments(boolean c) {
-		withComments = c;
+	withComments = c;
 	}
 
   @Override
@@ -314,7 +315,7 @@ public class DtdSerialization extends SerializationMixin
       else if (NMTOKENS == type) out(" %s", NMTOKENS);
     } else {
       if (NOTATION == type)
-        out(" %s", NOTATION);
+        out(" %s (", NOTATION);
       else
         out(" (");
       boolean first = true;

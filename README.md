@@ -1,10 +1,12 @@
 [//]: # "-*- mode: markdown; coding: utf-8-unix -*-"
 
-# A program to flatten DTDs
+# A program for flattening DTDs
 
 ## Overview
 
-This program takes an XML catalog, and an XML document with a DOCTYPE statement as input, and produces either a DTD as a single file, or an XML document describing the DTD.
+This program takes an XML catalog, and an XML document with a DOCTYPE
+statement as input, and produces either a DTD as a single file, or an
+XML document describing the DTD.
 
 DTDs are "flattened" by recursively expanding all entity references.
 
@@ -36,6 +38,12 @@ Options:
 
 JDK 1.8 or greater
 
+## Not implemented
+
+Notation declarations are ignored. If there is an attribute
+declaration of NOTATION type, the attribute declaration is emitted,
+but the notation declaration is not.
+
 ## Formats
 
 The DTD format produces a valid XML DTD.
@@ -44,6 +52,18 @@ The XML format describes elements and their content models, with
 location information describing which entities definitions were
 originally found in.
 
+## XML format
+
+A grammar in Relax NG syntax can be found in [dtd.rnc](etc/dtd.rnc).
+
+## Building
+
+To build dtd-flattener.jar:
+
+```
+./gradlew clean build
+ls build/libs/dtd-flattener.jar
+```
 ## Author
 
 Kendall Shaw <kshaw@kendallshaw.com>

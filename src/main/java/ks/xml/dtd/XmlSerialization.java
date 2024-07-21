@@ -217,7 +217,7 @@ public class XmlSerialization
     try {
       final XMLStreamWriter w = getXmlWriter();
       w.writeStartElement("doctype-declaration");
-      w.writeAttribute("root", root);
+      w.writeAttribute("name", root);
       externalIdentifier(publicId, systemId);
       w.writeEndElement();
     } catch (XMLStreamException e) {
