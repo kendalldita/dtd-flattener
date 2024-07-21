@@ -1,0 +1,166 @@
+datatypes xs = "http://www.w3.org/2001/XMLSchema-datatypes"
+ 
+start =
+  element document-type {
+    doctype-declaration, external-subset
+  }
+
+doctype-declaration =
+  element doctype-declaration {
+    attribute name { text },
+    public-id?, system-id
+  }
+
+external-subset =
+  element external-subset {
+    location,
+    (entity-declaration | entity | redefinition)*
+  }
+
+public-id =
+  element public-id {
+    text
+  }
+
+system-id =
+  element system-id {
+    text
+  }
+
+location =
+  element location {
+    attribute href { xs:anyURI },
+    attribute line { xs:int },
+    (public-id?, system-id)?
+  }
+
+entity-declaration =
+  element entity-declaration {
+    attribute name { xs:Name },
+    location,
+    \text?,
+    raw-text?
+  }
+
+entity =
+  element entity {
+    attribute name { text },
+    location,
+    (entity-declaration |
+     entity |
+     redefinition |
+     content-model |
+     element-declaration |
+     attribute-list-declaration)*
+  }
+
+redefinition =
+  element redefinition {
+    attribute name { text },
+    location,
+    (entity-declaration | entity | redefinition)*
+  }
+
+\text =
+  element text {
+    text
+  }
+
+raw-text =
+  element raw-text {
+    text
+  }
+
+content-model =
+  element content-model {
+    attribute element { xs:Name },
+    (any | \empty | (group | pcdata | \element | sep | occur)*)
+  }
+
+element-declaration =
+  element element-declaration {
+    attribute name { xs:Name },
+    location,
+    element content-model { text }
+  }
+
+attribute-list-declaration =
+  element attribute-list-declaration {
+    attribute name { xs:Name },
+    attribute-declaration+
+  }
+
+any =
+  element any {
+    empty
+  }
+
+\empty =
+  element empty {
+    empty
+  }
+
+group =
+  element group {
+    (group | pcdata | \element | sep | occur)*
+  }
+
+pcdata =
+  element pcdata { empty }
+
+\element =
+  element element {
+    attribute name { xs:Name },
+    empty
+  }
+
+sep =
+  element sep {
+    attribute type { text },
+    empty
+  }
+
+occur =
+  element occur {
+    attribute type { text }
+  }
+
+attribute-declaration=
+  element attribute-declaration {
+    attribute name { xs:Name },
+    (\string | \token | notation | enumeration )
+  }
+
+\string =
+  element string {
+    implied | required | default-value
+  }
+
+\token =
+  element token {
+    attribute type { text },
+      ( implied | required )
+  }
+
+notation =
+  element notation { text }
+
+enumeration =
+  element enumeration {
+    entry+, (implied | required | default-value)
+  }
+
+entry =
+  element entry { text }
+
+implied =
+  element implied { empty }
+
+required =
+  element required { text }
+
+default-value =
+  element default-value {
+    attribute fixed {"false" | "true" },
+    text
+  }
