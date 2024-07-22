@@ -40,9 +40,15 @@ JDK 1.8 or greater
 
 ## Not implemented
 
-Notation declarations are ignored. If there is an attribute
-declaration of NOTATION type, the attribute declaration is emitted,
-but the notation declaration is not.
+`NDATA` productions are not handled, e.g.:
+
+```
+<!NOTATION gif PUBLIC "-//CompuServe//NOTATION Graphics Interchange Format 89a//EN"
+                      "image/gif">
+<!ENTITY neko SYSTEM "cat.gif" NDATA gif>
+```
+
+The entire entity declaration is ignored if it references a declared notation.
 
 ## Formats
 
@@ -54,7 +60,33 @@ originally found in.
 
 ## XML format
 
-A grammar in Relax NG syntax can be found in [dtd.rnc](etc/dtd.rnc).
+A schema for the XML format can be found in [dtd.rnc](etc/dtd.rnc).
+
+The XML document can be used to parse DTDs programmatically.
+
+### XML representation of content models
+
+Element declarations are represented by a copy of the text from the DTD, followed by an element detailing the content model, e.g.:
+
+```
+<element-declaration name="simpletable">
+  <location href="../plugins/org.oasis-open.dita.v1_3/dtd/base/dtd/commonElements.mod" line="1558"/>
+  <raw-content-model>((sthead)?,(strow)+)</raw-content-model>
+  <content-model element="simpletable">
+    <group>
+      <group>
+        <element name="sthead"/>
+      </group>
+      <occur type="?"/>
+      <sep type=","/>
+      <group>
+        <element name="strow"/>
+      </group>
+      <occur type="+"/>
+    </group>
+  </content-model>
+</element-declaration>
+```
 
 ## Building
 

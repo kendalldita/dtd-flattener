@@ -2,7 +2,15 @@ datatypes xs = "http://www.w3.org/2001/XMLSchema-datatypes"
  
 start =
   element document-type {
-    doctype-declaration, external-subset
+    xml-declaration, doctype-declaration, external-subset
+  }
+
+xml-declaration =
+  element xml-declaration {
+    attribute version { text },
+    attribute encoding { text },
+    attribute standalone { text }?,
+    empty
   }
 
 doctype-declaration =
@@ -14,7 +22,7 @@ doctype-declaration =
 external-subset =
   element external-subset {
     location,
-    (entity-declaration | entity | redefinition)*
+    (entity-declaration | parameter-entity-declaration | entity | redefinition)*
   }
 
 public-id =
@@ -42,14 +50,22 @@ entity-declaration =
     raw-text?
   }
 
+parameter-entity-declaration =
+  element parameter-entity-declaration {
+    attribute name { xs:Name },
+    location,
+    \text?,
+    raw-text?
+  }
+
 entity =
   element entity {
     attribute name { text },
     location,
     (entity-declaration |
+     parameter-entity-declaration |
      entity |
      redefinition |
-     content-model |
      element-declaration |
      attribute-list-declaration)*
   }
@@ -58,7 +74,7 @@ redefinition =
   element redefinition {
     attribute name { text },
     location,
-    (entity-declaration | entity | redefinition)*
+    (entity-declaration | parameter-entity-declaration | entity | redefinition)*
   }
 
 \text =
@@ -81,7 +97,8 @@ element-declaration =
   element element-declaration {
     attribute name { xs:Name },
     location,
-    element content-model { text }
+    element raw-content-model { text },
+    content-model
   }
 
 attribute-list-declaration =

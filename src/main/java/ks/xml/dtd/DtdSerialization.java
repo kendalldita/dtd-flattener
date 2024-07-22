@@ -18,9 +18,7 @@ import java.util.regex.Matcher;
 
 import ks.xml.dtd.attributes.AttributeDeclaration;
 import ks.xml.dtd.attributes.AttributeDeclarationWriter;
-import org.apache.xerces.xni.XMLLocator;
-import org.apache.xerces.xni.XMLString;
-import org.apache.xerces.xni.XNIException;
+import org.apache.xerces.xni.*;
 
 public class DtdSerialization extends SerializationMixin
   implements AttributeDeclarationWriter, Serialization
@@ -63,6 +61,11 @@ public class DtdSerialization extends SerializationMixin
       throw e;
     }
 	}
+
+  public DtdSerialization(Writer w, boolean withComments) {
+    setWithComments(withComments);
+    setSerializationWriter(new PrintWriter(w));
+  }
 
   // Serialization interface
 
@@ -338,7 +341,25 @@ public class DtdSerialization extends SerializationMixin
     }
 	}
 
-	@Override
+  @Override
+  public void notationDecl(String name, XMLResourceIdentifier id, Augmentations augmentations) throws XNIException {
+    if (isWithComments())
+      locationComment();
+    String publicId = id.getPublicId();
+    String systemId = id.getLiteralSystemId();
+    if (systemId == null || systemId.trim().isEmpty()) {
+      if (publicId == null || publicId.trim().isEmpty())
+        throw new RuntimeException("NOTATION with neither system id nor public id.");
+      out("<!NOTATION %s PUBLIC \"%s\">\n", name, publicId.replace("\"", "&#x22;"));
+    } else if (publicId == null || publicId.trim().isEmpty()) {
+      out("<!NOTATION %s SYSTEM \"%s\">\n", name, systemId.replace("\"", "&#x22;"));
+    } else {
+      out("<!NOTATION %s PUBLIC \"%s\" \"%s\">\n",
+          name, publicId, systemId.replace("\"", "&#x22;"));
+    }
+  }
+
+  @Override
 	public void redefinition(String entityName) throws XNIException {
     if (isWithComments()) {
       locationComment();

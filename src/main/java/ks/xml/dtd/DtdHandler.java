@@ -96,10 +96,14 @@ public class DtdHandler implements XMLDTDHandler, XMLDTDContentModelHandler {
   // XMLDTDHandler protocol
 
   @Override
-  public XMLDTDSource getDTDSource() { return dtdSource; }
+  public XMLDTDSource getDTDSource() {
+    return dtdSource;
+  }
 
   @Override
-  public void setDTDSource(XMLDTDSource source) { dtdSource = source; }
+  public void setDTDSource(XMLDTDSource source) {
+    dtdSource = source;
+  }
 
   @Override
   public void startDTD(XMLLocator locator, Augmentations augmentations)
@@ -176,7 +180,7 @@ public class DtdHandler implements XMLDTDHandler, XMLDTDContentModelHandler {
       entityNames.put(name, EntityType.EXTERNAL);
       final String systemId = id.getLiteralSystemId();
       final String publicId = id.getPublicId();
-      getSerializer().externalEntityDeclaration(suffix, publicId, systemId);
+      getSerializer().externalEntityDeclaration(name, publicId, systemId);
     }
   }
 
@@ -262,6 +266,7 @@ public class DtdHandler implements XMLDTDHandler, XMLDTDContentModelHandler {
   @Override
   public void notationDecl(String name, XMLResourceIdentifier identifier,
                            Augmentations augmentations) throws XNIException {
+    getSerializer().notationDecl(name, identifier, augmentations);
   }
 
   @Override

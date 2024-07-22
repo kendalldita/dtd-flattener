@@ -21,9 +21,7 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
-import org.apache.xerces.xni.XMLLocator;
-import org.apache.xerces.xni.XMLString;
-import org.apache.xerces.xni.XNIException;
+import org.apache.xerces.xni.*;
 
 import ks.xml.dtd.attributes.AttributeDeclaration;
 import ks.xml.dtd.attributes.AttributeDeclarationWriter;
@@ -202,8 +200,10 @@ public class XmlSerialization
       final XMLStreamWriter w = getXmlWriter();
       w.writeEmptyElement("xml-declaration");
       w.writeAttribute("version", version);
-      if (encoding != null && !"".equals(encoding))
+      if (encoding != null && !encoding.isEmpty())
         w.writeAttribute("encoding", encoding);
+      if (standalone != null && !standalone.isEmpty())
+        w.writeAttribute("standalone", standalone);
     } catch (XMLStreamException e) {
       throw new XNIException(e);
     }   
@@ -283,15 +283,12 @@ public class XmlSerialization
     throws XNIException
   {
     final boolean parameterEntity = name.startsWith("%");
-    final String tagName =
-      parameterEntity ? "parameter-entity-declaration"
-      : "entity-declaration";
-    final String entityName =
-      parameterEntity ? "% " + name.substring(1) : name;
+    final String tagName = parameterEntity ? "parameter-entity-declaration" : "entity-declaration";
+    final String entityName = parameterEntity ? name.substring(1) : name;
     final String textString = text.toString();
     final String rawString = rawText.toString();
     startElement(tagName);
-    attribute("name", entityName);
+    attribute("name", name);
     locationElement();
     if (textString.equals(rawString)) {
       element("text", normalizedText(textString));
@@ -325,11 +322,8 @@ public class XmlSerialization
     throws XNIException
   {
     final boolean parameterEntity = name.startsWith("%");
-    final String tagName =
-      parameterEntity ? "parameter-entity-declaration"
-      : "entity-declaration";
-    final String entityName =
-      parameterEntity ? "% " + name.substring(1) : name;
+    final String tagName = parameterEntity ? "parameter-entity-declaration" : "entity-declaration";
+    final String entityName = parameterEntity ? name.substring(1) : name;
     final XMLStreamWriter w = getXmlWriter();
     try {
       w.writeStartElement(tagName);
@@ -364,7 +358,7 @@ public class XmlSerialization
     startElement("element-declaration");
     attribute("name", name);
     locationElement();
-    element("content-model", contentModel);    
+    element("raw-content-model", contentModel);
     endElement();
   }
 
@@ -392,6 +386,22 @@ public class XmlSerialization
                                                        enumeration,
                                                        defaultType,
                                                        value));
+  }
+
+  @Override
+  public void notationDecl(String name, XMLResourceIdentifier id, Augmentations augmentations) throws XNIException {
+    startElement("notation");
+    attribute("name", name);
+    String publicId = id.getPublicId();
+    String systemId = id.getLiteralSystemId();
+    if (systemId == null || systemId.trim().isEmpty()) {
+      if (publicId == null || publicId.trim().isEmpty())
+        throw new RuntimeException("NOTATION has no identifiers");
+      element("public-id", publicId);
+    } else {
+      externalIdentifier(publicId, systemId);
+    }
+    endElement();
   }
 
   @Override

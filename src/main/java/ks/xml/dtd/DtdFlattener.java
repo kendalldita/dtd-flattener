@@ -4,9 +4,30 @@ package ks.xml.dtd;
 
 import ks.xml.dtd.cli.HelpFactory;
 import org.apache.xerces.xni.parser.XMLInputSource;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 import picocli.CommandLine;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
+
+import static com.google.common.io.Resources.getResource;
 
 public final class DtdFlattener {
 
@@ -108,12 +129,45 @@ public final class DtdFlattener {
   }
 
   public int go(DtdFlattenerParameters params) throws Exception {
+    StringWriter sw = new StringWriter();
     Serialization out = isXmlFormat() ?
-      new XmlSerialization(getOutput()) : new DtdSerialization(getOutput(), isWithComments());
+      new XmlSerialization(sw) : new DtdSerialization(sw, isWithComments());
     out.setWithAbsolutePaths(isAbsolute());
     out.setBasePath(getCatalog().toPath());
     final XniConfiguration configuration = getXniConfiguration(out);
     parseDocuments(configuration);
+    String xml = sw.toString();
+    if (isXmlFormat()) {
+      DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+      DocumentBuilder db = dbf.newDocumentBuilder();
+      StringReader srdr = new StringReader(sw.toString());
+      InputSource ins = new InputSource(srdr);
+      Document doc = db.parse(ins);
+      NodeList nl = doc.getElementsByTagName("raw-content-model");
+      for (int i = 0, e = nl.getLength(); i < e; ++i) {
+        Element el = (Element) nl.item(i);
+        Element parent = (Element) el.getParentNode();
+        Element rel = (Element) el.getParentNode().getPreviousSibling();
+        parent.appendChild(rel);
+      }
+      TransformerFactory tf = TransformerFactory.newInstance();
+      Transformer trans = tf.newTransformer();
+      DOMSource ds = new DOMSource(doc);
+      File f = getOutput();
+      StringWriter sww = new StringWriter();
+      StreamResult sr = new StreamResult(sww);
+      sr.setSystemId(f.getAbsoluteFile().toURI().toASCIIString());
+      trans.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+      trans.transform(ds, sr);
+      xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>" + sww.toString();
+    }
+    try (BufferedWriter bw = Files.newBufferedWriter(getOutput().toPath(),
+                                                     StandardCharsets.UTF_8,
+                                                     StandardOpenOption.CREATE,
+                                                     StandardOpenOption.WRITE))
+    {
+      bw.write(xml);
+    }
     return 0;
   }
 

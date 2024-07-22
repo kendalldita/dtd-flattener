@@ -6,9 +6,7 @@ import java.io.Writer;
 import java.net.URI;
 import java.nio.file.Path;
 
-import org.apache.xerces.xni.XMLLocator;
-import org.apache.xerces.xni.XMLString;
-import org.apache.xerces.xni.XNIException;
+import org.apache.xerces.xni.*;
 
 public interface Serialization {
 
@@ -86,6 +84,9 @@ public interface Serialization {
   void attributeDeclaration(String name, String type,
                             String[] enumeration, String defaultType,
                             XMLString defaultValue)
+    throws XNIException;
+
+  void notationDecl(String name, XMLResourceIdentifier identifier, Augmentations augmentations)
     throws XNIException;
 
   void redefinition(String entityName) throws XNIException;
